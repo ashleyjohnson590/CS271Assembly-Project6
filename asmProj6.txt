@@ -1,0 +1,747 @@
+TITLE Programming Assignment 6: Designing Low-Level I/O procedures
+
+; Author: Ashley Johnson
+; Last Modified: 3/13/2021
+; OSU email address: johnsas8@oregonstate.edu
+; Course number/section:   CS271 Section 400
+; Project Number:   6              Due Date:3/14/2021
+; Description: This program gets 10 signed integers from user, 
+;then displays the list of integers, the sum, and the average. 
+
+INCLUDE Irvine32.inc
+;----------------------------------------------------------------------------------------------
+;Name: mDisplayString
+;
+;prints the string user entered.
+;
+;Receives: 
+;buffer= adress of buffer
+;buffersize=buffer length
+;
+;Returns:
+;buffer = buffer adress
+;----------------------------------------------------------------------------------------------
+mDisplayString MACRO stringbuffer
+push edx
+
+mov edx, stringbuffer
+call WriteString
+
+pop edx
+
+
+ENDM
+
+;----------------------------------------------------------------------------------------------
+;Name: mGetString
+;
+;prints the string user entered.
+;
+;Receives: 
+;buffer= adress of buffer
+;buffersize=buffer length
+;
+;Returns:
+;buffer = buffer adress
+;----------------------------------------------------------------------------------------------
+mGetString MACRO buffer, buffersize
+
+	.data
+	 inputPrompt BYTE "Please enter a signed number: ",0
+	
+	.code
+	;print prompt
+	push edx
+	push ecx
+	mov edx, OFFSET inputPrompt
+	call WriteString
+	;get from command line
+	mov edx, buffer
+	mov ecx, buffersize
+	call readString
+	pop ecx
+	pop edx
+
+
+ENDM
+
+
+
+;----------------------------------------------------------------------------------------------
+;Name: mconvertInteger
+;
+;takes in input as integer and returns Ascii character on eax register
+;
+;Receives: 
+;character = character in array
+;
+;Returns:
+;eax = converted ascii number to integer. 
+;----------------------------------------------------------------------------------------------
+mconvertInteger MACRO character
+.data
+convertNum SDWORD 0
+
+.code
+	mov eax, 0
+	mov al, character
+	add eax, 30h
+
+
+ENDM
+
+
+;----------------------------------------------------------------------------------------------
+;Name: mconvertAscii
+;
+;takes in input as Ascii character and returns integer value on eax register
+;
+;Receives: 
+;character = character in array
+;
+;Returns:
+;eax = converted ascii number to integer. 
+;----------------------------------------------------------------------------------------------
+mconvertAscii MACRO character
+.data
+convertNum SDWORD 0
+
+.code
+	mov eax, 0
+	mov al, character
+	sub eax, 30h
+
+
+ENDM
+
+
+;----------------------------------------------------------------------------------------------
+;Name: mCheckPlusMinus
+;
+;checks if first character in userNum is a + or -
+;
+;Receives: 
+;character = character in array
+;
+;Returns:
+;input is a character. 
+;if character is plus, eax returns 1
+; if character is minus, eax returns 2
+; else eax returns 0
+;----------------------------------------------------------------------------------------------
+
+mCheckPlusMinus MACRO character
+	mov al, "+"
+	cmp al, character
+	je _isPlus
+	mov al, "-"
+	cmp al, character
+	je _isMinus
+	mov eax, 0
+	jmp _done
+
+_isPlus:
+	mov eax, 1
+	jmp _done
+
+_isMinus:
+	mov eax, 2
+	jmp _done
+
+_done:
+ENDM
+
+;----------------------------------------------------------------------------------------------
+;Name: mIsNumber
+;
+;checks if character is number
+;
+;Receives: 
+;character = character in array
+;
+;Returns:
+;input is a character. 
+;if character is number, ebx returns 1
+; if character is not a number, ebx returns 0
+;
+;----------------------------------------------------------------------------------------------
+
+mIsNumber MACRO character
+
+.data
+zero BYTE "0"
+nine BYTE "9"
+
+.code
+	mov al, zero
+	mov bl, character
+	cmp bl, al
+	jl _setFalse
+	mov al, nine
+	cmp bl, al
+	jg _setFalse
+	mov ebx, 1
+jmp _return
+
+
+_setFalse:
+	mov ebx, 0
+_return:
+
+ENDM
+
+
+.data
+	
+   progTitle BYTE   "Program #6: Designing low-level I/O Procedures",0
+   progTitle2 BYTE	"Programmed by: Ashley Johnson ", 0 
+   instructions1 BYTE "Please provide 10 signed decimal integers.",0
+   instructions2 BYTE "Each number needs to be small enough to fit inside a 32 bit register. ",0
+   instructions3 BYTE "After you have finished inputting the raw numbers I will display a list of ",0
+   instructions4 BYTE "the integers, their sum, and their average value.",0
+   errorMessage BYTE "ERROR: You did not enter a signed number or your number was too big. ",0
+   errorPrompt BYTE "Please try again: ",0
+   listMessage BYTE "You entered the following numbers: ",0
+   sumMessage BYTE "The sum of these numbers is: ",0
+   averageMessage BYTE "The rounded average is: ",0
+   inputBuffer BYTE 50 DUP(0)
+   userNum SDWORD 0
+   averageTotal SDWORD ?
+   sumTotal SDWORD	?
+   spaceChar	BYTE	" ", 0
+   signedArray SDWORD 10 DUP(?)
+   numFound SDWORD 0
+   typeArray	SDWORD	TYPE signedArray
+   count	SDWORD	LENGTHOF signedArray
+   numBytes	SDWORD	SIZEOF signedArray
+   numEntered	SDWORD	?	; number user enters
+   numberOfChars	SDWORD ?
+   goodbye  BYTE   "Thanks for playing! " ,0
+   myNumber SDWORD -561
+   myCharArray SDWORD 50 DUP(0)
+   commaSpace BYTE ", " ,0
+
+.code
+main PROC
+
+	push OFFSET instructions4
+	push OFFSET instructions3
+	push OFFSET instructions2
+	push OFFSET instructions1
+	push OFFSET progTitle2
+	push OFFSET progTitle
+	call introduction
+	call crlf
+
+	; gets a value from user and returns it in userNum
+	push OFFSET errorMessage
+	push OFFSET count
+	push OFFSET signedArray
+	push OFFSET inputBuffer
+	push OFFSET userNum
+	call getInputNumbers
+	call crlf
+
+	push OFFSET commaSpace
+	push OFFSET myCharArray
+	push lengthof signedArray
+	push OFFSET signedArray
+	push OFFSET listMessage
+	call writeArray
+	call crlf
+
+	push OFFSET sumMessage
+	push OFFSET signedArray
+	push OFFSET count
+	push OFFSET sumTotal
+	call getSum
+
+	;print sum
+	push OFFSET sumTotal
+	push OFFSET myCharArray
+	call WriteVal
+	call crlf
+
+	push OFFSET averageMessage
+	push OFFSET averageTotal
+	push OFFSET sumTotal
+	push OFFSET count
+	call getAverage
+	
+	push OFFSET averageTotal
+	push OFFSET myCharArray
+	call writeval
+	call crlf
+	call crlf
+
+	push OFFSET goodbye
+	call farewell
+
+	Invoke exitProcess,0	;exit to operating system
+main ENDP
+
+
+;--------------------------------------------------------------------------------------------
+;Name: Introduction
+; Displays program title and instructions. 
+; Receives: 
+;[ebp+8] = program title
+;[ebp+12] = program title 2
+;[ebp+16] = instructions 1
+;[ebp+20]= instructions 2
+;[ebp+24]= instructions 3
+;[ebp+28] = instructions4
+; edx contains program Title and instructions to write string. 
+;Returns: Program Title and instructions
+;-------------------------------------------------------------------------------------------------
+introduction PROC
+	push ebp
+	mov ebp, esp
+	mov edx, [ebp+8]; progtitle
+	call WriteString
+	call crlf 
+	
+	mov edx, [ebp+12]; progtitle2
+	call WriteString
+	call crlf
+	call crlf
+
+	mov edx, [ebp+16] ; intructions1
+	call WriteString
+	call crlf
+	
+	mov edx, [ebp+20]; instructions2
+	call WriteString
+	
+	mov edx, [ebp+24]; intructions3
+	call WriteString
+
+	mov edx, [ebp+28]; instructions4
+	call WriteString
+	call crlf
+	call crlf
+	pop ebp
+	RET 24
+introduction ENDP
+
+;arguments in adress of signedArray
+;size of signedArray
+;-----------------------------------------------------------------------------------------
+; Name: getInputNumbers
+; Gets 10 signed integers from user and stores numbers in signedarray. 
+; Receives: 
+;[ebp+8] = number user entered
+;[ebp+12] = inputBuffer
+;[ebp+16] = adress of signedArray
+;[ebp+20]= length of SignedArray
+; Ebx contains userNum, eax contains inputBuffer, esi contains signedArray, edi contains 
+;lengthofsignedarray.
+;-----------------------------------------------------------------------------------------
+getInputNumbers PROC
+	push ebp
+	mov ebp, esp
+	push eax
+	push ebx
+	push ecx
+	push edx
+	push edi
+	push esi
+	mov ebx, [ebp+8]; userNum
+	mov eax, [ebp+12]; inputBuffer
+	mov edi, [ebp+16]; signedArray
+	mov edx, [ebp+20]; lengthofSignedArray
+
+	mov ecx, [edx]
+	
+
+signedLoop:
+	;calling readVal returns a valid signed integer in userNum
+	;push OFFSET errorMessage
+	push [ebp+24]
+	push eax
+	push ebx
+	call readVal 
+	push eax
+	mov eax, [ebx]
+	cld
+	stosd
+	pop eax
+
+loop signedLoop
+
+
+pop esi
+pop edi
+pop edx
+pop ecx
+pop ebx
+pop eax
+pop ebp
+
+RET 16
+
+getInputNumbers ENDP
+;-------------------------------------------------------------------------------------------
+;Name: writeArray
+;gets sum of signedIntegers from signedArray
+;Receives:
+;[ebp+8] = print string
+;[ebp+12] = adress of signedArray
+;[ebp+16] = length of signedArray
+;eax contains sumTotal, ebx contains count, and edx
+;contains signedArray. ecx contains counter for loop. 
+;Returns:
+;sumTotal
+;--------------------------------------------------------------------------------------------
+writeArray PROC
+push ebp
+mov ebp, esp
+push eax
+push ecx
+push edi
+push esi
+mov edx, [ebp+8]; listMessage
+mov esi, [ebp+12]; signedArray 
+mov ecx, [ebp+16]; size of signedArray
+mov edi, [ebp+20]; myCharArray
+
+;printing outputmessage
+call WriteString
+call crlf
+
+;print numbers
+listPrint:
+	push esi
+	push edi
+	call writeVal
+	add esi, 4
+	push edx
+	push esi
+	mov edx, [ebp+24]
+	call WriteString
+	lodsd
+	pop esi
+	pop edx
+
+
+loop listPrint
+
+;done printing numbers
+pop esi
+pop edi
+pop ecx
+pop eax
+pop ebp
+
+RET 20
+writeArray ENDP
+
+;-------------------------------------------------------------------------------------------
+;Name: getSum
+;gets sum of signedIntegers from signedArray
+;Receives:
+;[ebp+8] = sumTotal
+;[ebp+12] = number of integers in array
+;[ebp+16] = adress of signedArray
+;eax contains sumTotal, ebx contains count, and edx
+;contains signedArray. ecx contains counter for loop. 
+;Returns:
+;sumTotal
+;--------------------------------------------------------------------------------------------
+getSum PROC
+	push ebp
+	mov ebp, esp
+	push eax
+	push ebx
+	push ecx
+	push edx
+	push esi
+	mov edx, [ebp+8]; sumTotal
+	mov ebx, [ebp+12]; count
+	mov esi, [ebp+16]
+
+	mov ecx, [ebx]
+
+	sumLoop:
+	lodsd
+	add [edx], eax
+
+	loop sumLoop
+	
+	mov edx, [ebp+20]
+	call WriteString
+	pop esi
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	pop ebp
+	
+	RET 16
+getSum ENDP
+
+;--------------------------------------------------------------------------------------------
+;Name:getAverage
+;gets average of the 10 signed integers user entered 
+;Receives: 
+;[ebp+8] = number of integers in array
+;[ebp+12]= sum of integers in array
+;[ebp+16]= adress of averageTotal
+;ebx contains the count, eax contains sumTotal, and 
+;ecx contains averageTotal
+;Returns: 
+;ecx = averageTotal
+;--------------------------------------------------------------------------------------------
+getAverage PROC
+	push ebp
+	mov ebp, esp
+	push eax
+	push ebx
+	push ecx
+	push edx
+	push edi
+
+	mov ebx, [ebp+8]; count
+	mov eax, [ebp+12]; sumTotal
+	mov ecx, [ebp+16]; averageTotal
+	mov edx, [eax]
+	mov eax, edx
+	mov edi, [ebx]
+	cdq
+	idiv edi; divides eax by count
+	mov [ecx], eax 
+	mov edx, [ebp+20]
+	call WriteString
+
+	pop edi
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	pop ebp
+
+	RET 20
+getAverage ENDP
+
+;--------------------------------------------------------------------------------------------
+;Name:readVal
+;validates that user number is valid, calls convert macro to convert string to integers,
+; and stores number in array. 
+;Receives:
+;[ebp+12] = inputBuffer
+;[ebp+8]= number user entered
+;esi contains inputBuffer and eax contains userNum.
+;returns:
+;--------------------------------------------------------------------------------------------
+readVal PROC
+	push ebp
+	mov ebp, esp
+	push 0 ; store integer value
+	push 1 ; variable to multiply if negative
+	push edi
+	push esi
+	push eax
+	push ebx
+	push ecx
+	push edx
+	mov esi, [ebp+12]; inputBuffer
+	mov eax, [ebp+8]; userNum
+	mov ebx, 0
+	mov [eax], ebx
+	NewNum:
+	push eax
+	mGetString esi, sizeof inputbuffer; eax contains number of characters
+	mov edx, eax
+	mov ecx, eax
+	sub edx, 1
+	pop eax
+	mov edi, 1
+
+	;checkPlus returns value on eax
+	push eax 
+
+	mcheckPlusMinus [esi]
+	cmp eax, 0
+	je _continue
+	sub ecx, 1
+	cmp eax, 1
+	je _continue
+
+	mov eax, -1
+	mov [ebp-8], eax
+	_continue:
+	pop eax
+	
+	NumVal:
+		mIsNumber [esi+edx]
+		cmp ebx, 1
+		jne _printError
+		push eax
+		push ebx
+		mconvertAscii [esi+edx]; integer on eax
+		imul eax,edi
+		mov ebx, [ebp+8]
+		add [ebx], eax
+		jo _overflow
+		pop ebx
+		imul edi,10
+		pop eax
+		dec edx
+
+	loop NumVal
+	jmp _End
+	_overflow:
+	test edi,edi
+	mov eax, [ebp+8]
+	mov edi, 0
+	mov [eax], edi
+	pop ebx
+	pop eax
+	_printError:
+	mov edx, [ebp+16]
+	call WriteString
+	jmp NewNum
+	
+	_End:
+	mov ecx, [ebp+8]
+	mov ebx,[ebp-8]
+	imul ebx, [ecx]
+
+	mov [ecx], ebx
+	; need to pop 2 local variables
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	pop esi
+	pop edi
+	pop ebp
+	pop ebp
+	pop ebp
+
+	RET 12
+readVal ENDP
+;-----------------------------------------------------------------------------------------------
+;Name: WriteVal
+;converts SDWORD integer to string of ascii digits. Displays string using mDisplayString macro.
+;Displays list of integers, their sum, and their average. 
+;Receives: 
+;[ebp+8]= adress of output array
+;[ebp+12]= adress of number
+;[ebp+16] = message to display average
+;-----------------------------------------------------------------------------------------------
+WriteVal PROC
+	push ebp
+	mov ebp, esp
+	push 0 ; counting number of digits ebp-4
+	push 0; tracking if number is negative ebp -8
+	push 0; adress of number ebp-12
+	push 0; number value epb-16
+	push eax
+	push ebx
+	push ecx
+	push edx
+	push edi
+	push esi
+	mov esi, [ebp+12]; adress of number
+	mov edi, [ebp+8]; output array
+	mov [ebp-12], esi ; moves signed number into address of numer 
+	mov eax, [esi];  eax contains signed number
+	mov [ebp-16], eax;  number value on stack at ebp-16
+	mov eax, 0
+
+    ;Determine if number coming in is negative
+	cmp [esi], eax
+	jg _isPositive
+	je _isZero
+	
+	    ;Set flag at ebp-8 that this is a negative number
+        mov eax, 1
+	    add [ebp-8], eax
+
+        ;Convert incoming number to postive
+	    mov ebx, -1
+	    mov ecx,[esi]
+	    imul ecx, ebx
+	    mov [esi], ecx
+        ;number in esi is now the positive of incoming number
+	_isPositive:
+
+	    mov eax, 0
+	    cmp [esi], eax
+        ;quotient has been reduced to 0
+	    je _done
+	    _isZero:
+    	mov eax,[esi]
+	    mov ebx, 10
+	    cdq
+	    idiv ebx
+	    push edx; push remainder onto stack 
+	    mov edx, 1; add number of charcters to count
+	    add [ebp-4], edx
+	    mov [esi],eax; move quotient into esi
+	jmp _isPositive
+
+	_done:
+	mov edx, edi; edi contains our address of charcter array
+
+    ;If number is negative add - to charArrary
+	mov eax, [ebp-8]
+	cmp eax, 0
+	je _continue
+	mov al, '-'
+	cld
+	stosb
+
+	_continue:
+	mov ecx, [ebp-4]; contains number of digits found
+    ;digits were stored on stack.  edi contains address of char array
+	convertLoop:
+	    pop eax
+	    add eax, 30h
+	    cld
+	    stosb
+	loop convertLoop
+
+    ;Add final 0 to signify end of string
+	mov eax, 0
+	cld
+	stosb
+
+	mov ecx, [ebp-8]
+	mDisplayString edx
+
+    ;Restore original number coming in to the incoming address
+	mov eax, [ebp-12]; adress of original number
+	mov ebx, [ebp-16]; content of original number
+	mov [eax], ebx
+	pop esi
+	pop edi
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	pop ebp
+	pop ebp
+	pop ebp ;local variable
+	pop ebp; local variable
+	pop ebp
+	
+	RET 8
+writeVal ENDP
+
+;-----------------------------------------------------------------------------------------------
+;Name:farewell
+;prints goodbye message
+;Receives: [ebp+8] = adress of goodbye message
+;-------------------------------------------------------------------------------------------------
+farewell PROC
+	push ebp
+	mov ebp, esp
+	mov edx, [ebp+8]
+	call WriteString
+	pop ebp
+	RET 4
+farewell ENDP
+
+END Main
