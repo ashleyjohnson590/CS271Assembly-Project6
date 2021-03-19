@@ -1,0 +1,179 @@
+Project 6 Rubric
+Criteria	Ratings	Pts
+Files Correctly Submitted
+1 pts
+Full Marks
+0 pts
+No Marks
+1 / 1 pts
+Program Assembles & Links
+1 pts
+Full Marks
+0 pts
+No Marks
+1 / 1 pts
+Documentation - Identification Block - Header
+1 pts
+Full Marks
+0 pts
+No Marks
+1 / 1 pts
+Documentation - Identification Block - Program Description
+1 pts
+Full Marks
+0 pts
+No Marks
+1 / 1 pts
+Documentation - Procedure/Macro Headers
+2 pts
+Full Marks
+0 pts
+No Marks
+Comments
+-0.5 missing pre/post conditions
+1.5 / 2 pts
+Documentation - Section and In-line Comments
+2 pts
+Full Marks
+0 pts
+No Marks
+2 / 2 pts
+Verification - Program Executes
+2 pts
+Full Marks
+0 pts
+No Marks
+2 / 2 pts
+Completeness - Test program gets 10 validated integers from user and displays them later
+3 pts
+Full Marks
+0 pts
+No Marks
+3 / 3 pts
+Completeness - Displays Correct Sum
+1 pts
+Full Marks
+0 pts
+No Marks
+1 / 1 pts
+Completeness - Displays Correct Average
+1 pts
+Full Marks
+0 pts
+No Marks
+1 / 1 pts
+Correctness - String to Number Conversion
+4 pts
+Full Marks
+0 pts
+No Marks
+4 / 4 pts
+Correctness - Number to String Conversion
+4 pts
+Full Marks
+0 pts
+No Marks
+4 / 4 pts
+Correctness - mGetString macro works
+2 pts
+Full Marks
+0 pts
+No Marks
+2 / 2 pts
+Correctness - mDisplayString macro works
+2 pts
+Full Marks
+0 pts
+No Marks
+2 / 2 pts
+Correctness - mGetString and mDisplayString are used to get/display strings
+2 pts
+Full Marks
+0 pts
+No Marks
+Comments
+WriteString used in all procs except for WriteVal
+1 / 2 pts
+Requirements - User Input validated as per Assignment Document
+4 pts
+Full Marks
+2 pts
+Invalid characters handled, Overflow unhandled
+2 pts
+Overflow handled, but Invalid Characters unhandled
+0 pts
+No Marks
+Comments
+-2147483648 was rejected as invalid input
+2 / 4 pts
+Requirements - Conversions use String Primitives
+2 pts
+Full Marks
+0 pts
+No Marks
+2 / 2 pts
+Requirements - Procedures implemented with logical hierarchy
+2 pts
+Full Marks
+0 pts
+No Marks
+2 / 2 pts
+Requirements - Properly uses WriteVal
+4 pts
+Full Marks
+0 pts
+No Marks
+Comments
+-2 WriteVal was not used to write all elements in the array, those were handled with WriteString instead
+2 / 4 pts
+Requirements - Properly uses ReadVal
+4 pts
+Full Marks
+0 pts
+No Marks
+4 / 4 pts
+Requirements - Used registers saved/restored by procedures and macros
+2 pts
+Full Marks
+0 pts
+No Marks
+2 / 2 pts
+Requirements - No Globals Variables Outside of Main, STDCALL calling convention (pass parameters on stack)
+0 pts
+Full Marks
+0 pts
+No Marks
+Comments
+global reference to inputbuffer was used in readVal proc
+-5 / 0 pts
+Coding Style - Uses appropriately named identifiers
+1 pts
+Full Marks
+0 pts
+No Marks
+1 / 1 pts
+Coding Style - Readability
+1 pts
+Full Marks
+0 pts
+No Marks
+1 / 1 pts
+Output Style - Readability
+1 pts
+Full Marks
+0 pts
+No Marks
+1 / 1 pts
+Extra Credit
+0 pts
+Full Marks
+0 pts
+No Marks
+0 / 0 pts
+Late Penalty
+0 pts
+Full Marks
+0 pts
+No Marks
+0 / 0 pts
+Total Points: 39.5
